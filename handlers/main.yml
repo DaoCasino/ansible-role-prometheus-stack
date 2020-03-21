@@ -1,0 +1,10 @@
+---
+- name: restart alertmanager
+  docker_container:
+    name: "alertmanager"
+    restart: true
+
+- name: restart prometheus-tg-bot
+  docker_container:
+    name: "prometheus-bot"
+    restart: true

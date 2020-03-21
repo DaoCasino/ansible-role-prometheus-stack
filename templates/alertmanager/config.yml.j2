@@ -1,0 +1,10 @@
+# ansible managed
+
+{% if prometheus_stack_alertmanager_receivers != [] %}
+receivers:
+{{ prometheus_stack_alertmanager_receivers | to_nice_yaml(indent=2) }}
+{% endif %}
+
+route:
+  {{ prometheus_stack_alertmanager_route | to_nice_yaml(indent=2) | indent(2, False) }}
+

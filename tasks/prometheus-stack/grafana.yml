@@ -1,0 +1,65 @@
+---
+- name: Create grafana config dir
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0777'
+  with_items:
+    - "{{ prometheus_stack_grafana_data }}"
+    - "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources"
+    - "{{ prometheus_stack_grafana_config_path }}/provisioning/dashboards"
+
+- name: Launch grafana prometheus
+  become: true
+  docker_container:
+    image: grafana/grafana:{{ prometheus_stack_grafana_version }}
+    env:
+      GF_PATHS_PROVISIONING: "{{ prometheus_stack_grafana_config_path }}/provisioning"
+      GF_SECURITY_ADMIN_USER: "{{ prometheus_stack_grafana_admin_user }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ prometheus_stack_grafana_admin_password }}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    name: grafana
+    detach: true
+    privileged: true
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_grafana_port }}:3000"
+    restart_policy: always
+    state: started
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    volumes:
+      - "{{ prometheus_stack_grafana_data }}:/var/lib/grafana"
+      - "{{ prometheus_stack_grafana_config_path }}/provisioning:/etc/grafana/provisioning"
+      - "{{ prometheus_stack_grafana_config_path }}/datasources:/etc/grafana/datasources"
+      - "{{ prometheus_stack_grafana_config_path }}/dashboards:/etc/grafana/dashboards"
+
+
+- name: Check grafana works
+  uri:
+    url: http://localhost:{{ prometheus_stack_grafana_port }}
+    method: GET
+    status_code: [200, 405]
+  retries: 60
+  delay: 1
+
+- name: Copy dashboards
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_stack_grafana_config_path }}/provisioning/dashboards/"
+  with_fileglob: "{{ prometheus_stack_grafana_dashboards_path }}"
+
+- name: Get dashboard files on remote machine
+  find:
+    paths: "/tmp/grafana/dashboards"
+  register: dashboard_files
+
+- name: Import Grafana dashboards
+  grafana_dashboard:
+    grafana_url: "http://localhost:{{ prometheus_stack_grafana_port }}"
+    grafana_user: "{{ prometheus_stack_grafana_admin_user }}"
+    grafana_password: "{{ prometheus_stack_grafana_admin_password }}"
+    state: present
+    commit_message: "Imported by ansible - {{ item.path | basename }}"
+    overwrite: yes
+    path: "{{ item.path }}"
+  with_items: "{{ dashboard_files.files }}"

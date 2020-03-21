@@ -1,0 +1,18 @@
+language: python
+services: docker
+env:
+  global:
+  - ROLE_NAME: prometheus-stack
+install:
+- pip install molecule==2.22 docker
+- chmod +x docker-playbook-test.sh
+before_script:
+- cd ../
+- mv ansible-role-$ROLE_NAME $ROLE_NAME
+- cd $ROLE_NAME
+- "./docker-playbook-test.sh"
+script:
+- molecule test
+notifications:
+  slack:
+    secure: OhGihXaJCAI05mZpRxShbz73IDQerpiDUZKC8BdOkRy+h3hpGQf5EGwfuIsGI5FTSVrZtBVlMATRNvrqR5q/xUkqin0QChCrCnh44MlURix7mavANpAuEiPP1tgpl3Mn22jzvWMev3V99nJAQRcyhfEdtUX/1qGkFM5vkyS/7p78D5uqREF7qwKXdn3qT0D9G3Ba/S4DVcuLKIp7n3LeG3WDZf6sRiDvXshxErrrVJNV6Cw+FSIRwshaSC6vn0CUoMQlJxPEVoWLOLh8gy/gwEgh8meWSxoA/9KyEcUPbZh1PTEw0GN5l8tGLmznkCg8tmotZjEc7wDBr45GZRXj8ApukqsjqfiU2t8MdTkwoUh20b8i842cqgjbk6fTXBTU2aZL7+yf4H0CmwYIrTLIno3pkJYMhFPLkGNaOHTEhCslA9OVLBt+P2Yij1yWq65OZ9FMC5MTUWairHgvsnWU8igm/V7QtrasXvAbMXtlVNLF1SbEsKZD7biEuMMimtmjgDc/UJieyXJAicJcjk8EyTuzlnOZX8q0szgrWt8othHfrxgEfStmdHmNvScQvG5BadE3x9+tZr3VzAfvRRKMsr6cyszY4Em5eUORl4ZAaiyKav/E0gC5gl4FcUtMgxYJ4hB1NON19Ztedy6vkbDJQlJRf23At/TPBhgD0448BJI=

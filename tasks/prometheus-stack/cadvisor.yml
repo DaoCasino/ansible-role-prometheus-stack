@@ -1,0 +1,30 @@
+---
+- name: Launch cadvisor container
+  become: true
+  docker_container:
+    image: "google/cadvisor:{{ prometheus_stack_cadvisor_version }}"
+    name: cadvisor
+    privileged: true
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:rw"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/cgroup:/cgroup:ro"
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    command: "{{ prometheus_stack_cavdisor_args }}"
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_cadvisor_port }}:8080"
+    restart_policy: always
+    state: started
+
+- name: Check cadvisor API works
+  uri:
+    url: http://localhost:{{ prometheus_stack_cadvisor_port }}
+    method: GET
+    status_code: 200
+  register: httpresponse
+  until: httpresponse.status == 200
+  retries: 15
+  delay: 5

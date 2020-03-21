@@ -1,0 +1,22 @@
+---
+- name: Launch prometheus push gateway
+  become: true
+  docker_container:
+    name: push-gateway
+    privileged: true
+    detach: true
+    image: "prom/pushgateway:{{ prometheus_stack_push_gateway_version }}"
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    restart_policy: always
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_push_gateway_port }}:9091"
+    state: started
+
+- name: Check gateway API works
+  uri:
+    url: http://localhost:{{ prometheus_stack_push_gateway_port }}
+    method: GET
+    status_code: 200
+  retries: 15
+  delay: 5

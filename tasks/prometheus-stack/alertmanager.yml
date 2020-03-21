@@ -1,0 +1,41 @@
+---
+- name: Create alertmanager config dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ prometheus_stack_alertmanager_config_path }}"
+
+- name: Set alertmanager config
+  template:
+    src: alertmanager/config.yml.j2
+    dest: "{{ prometheus_stack_alertmanager_config_path }}/config.yml"
+    force: true
+  notify: restart alertmanager
+
+- name: Launch docker alertmanager
+  become: true
+  docker_container:
+    command: >
+      --config.file={{ prometheus_stack_alertmanager_config_path }}/config.yml
+      --storage.path=/alertmanager
+      {{ prometheus_stack_alertmanager_additional_command_args }}
+    image: prom/alertmanager:{{ prometheus_stack_alertmanager_version }}
+    name: alertmanager
+    detach: true
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_alertmanager_port }}:9093"
+    restart_policy: always
+    state: started
+    volumes:
+      - "{{ prometheus_stack_alertmanager_config_path }}/config.yml:/etc/alertmanager/config.yml:ro"
+
+- name: Check alertmanager API works
+  uri:
+    url: http://localhost:{{ prometheus_stack_alertmanager_port }}
+    method: GET
+    status_code: [200, 405]
+  retries: 15
+  delay: 5

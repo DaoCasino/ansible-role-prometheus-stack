@@ -1,0 +1,7 @@
+# ansible managed
+
+groups:
+- name: targets
+  rules:
+  {{ prometheus_stack_prometheus_alert_rules | to_nice_yaml(indent=2) | indent(2, False) }}
+

@@ -1,0 +1,46 @@
+---
+- name: Prepare
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      become: true
+      changed_when: false
+
+    - name: Collect facts
+      setup:
+
+    - name: Install epel
+      include_role:
+        name: geerlingguy.repo-epel
+      when: ansible_os_family == 'RedHat'
+
+    - name: install pip
+      include_role:
+        name: geerlingguy.pip
+        apply:
+          become: yes
+      vars:
+        pip_install_packages:
+          - name: docker
+          - name: docker-compose==1.22.0
+
+    - name: Install docker
+      vars:
+        docker_compose_path: /usr/bin/docker-compose
+      include_role:
+        name: '{{ roleinputvar }}'
+      loop:
+        - geerlingguy.docker
+      loop_control:
+        loop_var: roleinputvar
+
+#    - name: Install requirement roles
+#      include_role:
+#        name: '{{ roleinputvar }}'
+#      loop:
+#        - geerlingguy.pip
+#        - geerlingguy.docker
+#      loop_control:
+#        loop_var: roleinputvar

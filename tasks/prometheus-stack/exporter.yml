@@ -1,0 +1,27 @@
+---
+- name: Launch node-exporter container
+  become: true
+  docker_container:
+    name: node-exporter
+    command: "{{ prometheus_stack_node_exporter_args }}"
+    privileged: true
+    detach: true
+    image: "prom/node-exporter:{{ prometheus_stack_node_exporter_version }}"
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    restart_policy: always
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_node_exporter_port }}:9100"
+    state: started
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+- name: Check node-exporter API works
+  uri:
+    url: http://localhost:{{ prometheus_stack_node_exporter_port }}
+    method: GET
+    status_code: 200
+  retries: 15
+  delay: 5

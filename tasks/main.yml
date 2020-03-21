@@ -1,0 +1,34 @@
+---
+- name: create docker network
+  become: true
+  docker_network:
+    name: "{{ prometheus_stack_docker_network }}"
+    state: present
+
+- name: Install prometheus
+  include_tasks: "prometheus-stack/prometheus.yml"
+  when: prometheus_stack_install_prometheus|bool
+
+- name: Install node-exporter
+  include_tasks: "prometheus-stack/exporter.yml"
+  when: prometheus_stack_install_exporter|bool
+
+- name: Install push-gateway
+  include_tasks: "prometheus-stack/gateway.yml"
+  when: prometheus_stack_install_gateway|bool
+
+- name: Install cadvisor
+  include_tasks: "prometheus-stack/cadvisor.yml"
+  when: prometheus_stack_install_cadvisor|bool
+
+- name: Install grafana
+  include_tasks: "prometheus-stack/grafana.yml"
+  when: prometheus_stack_install_grafana|bool
+
+- name: Install alertmanager
+  include_tasks: "prometheus-stack/alertmanager.yml"
+  when: prometheus_stack_install_alertmanager|bool
+
+- name: Install prometheus-bot
+  include_tasks: "prometheus-stack/prometheus-tg-bot.yml"
+  when: prometheus_stack_install_prometheus_tg_bot|bool

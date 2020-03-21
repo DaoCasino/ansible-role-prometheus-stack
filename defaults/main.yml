@@ -1,0 +1,86 @@
+# Global installtation variables
+prometheus_stack_install_cadvisor: true
+prometheus_stack_install_exporter: true
+prometheus_stack_install_gateway: true
+prometheus_stack_install_prometheus: true
+prometheus_stack_install_grafana: true
+prometheus_stack_install_alertmanager: true
+prometheus_stack_install_prometheus-tg-bot: true
+prometheus_stack_install_graylog: true
+prometheus_stack_install_prometheus_tg_bot: false
+
+prometheus_stack_docker_network: prometheus-stack
+
+#Prometheus
+prometheus_stack_prometheus_port: 9090
+prometheus_stack_prometheus_docker_network: prometheus
+prometheus_stack_prometheus_additional_command_args: ''
+prometheus_stack_prometheus_version: v2.13.0
+prometheus_stack_prometheus_config_path: /etc/prometheus
+prometheus_stack_prometheus_data: /opt/prometheus/data
+prometheus_stack_prometheus_static_targets:
+  - 'localhost:9090'
+prometheus_stack_prometheus_targets:
+  - jobname: monitoring
+    host: localhost
+    metrics_path: /metrics
+    port: 9090
+prometheus_stack_prometheus_addition_target:
+  - ip: 127.0.0.1
+    ports:
+      - "{{ prometheus_stack_node_exporter_port }}"
+      - 8080
+      - 8889
+prometheus_stack_prometheus_alertmanagers: []
+prometheus_stack_prometheus_alert_rules:
+  - alert: monitor_service_down
+    expr: up == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Monitor service non-operational"
+      description: "{% raw %}Service {{ $labels.instance }} is down.{% endraw %}"
+
+# Node exporter
+prometheus_stack_node_exporter_port: 9100
+prometheus_stack_node_exporter_version: v0.18.1
+prometheus_stack_node_exporter_args:
+  - '--path.procfs=/host/proc'
+  - '--path.rootfs=/rootfs'
+  - '--path.sysfs=/host/sys'
+  - '--collector.filesystem.ignored-mount-points'
+  - '^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+
+# Push gateway
+prometheus_stack_push_gateway_version: v0.7.0
+prometheus_stack_push_gateway_port: 9091
+
+# CAdvisor
+prometheus_stack_cadvisor_port: 8080
+prometheus_stack_cadvisor_version: v0.33.0
+prometheus_stack_cavdisor_args: ""
+
+# Grafana
+prometheus_stack_grafana_port: 3000
+prometheus_stack_grafana_version: 6.6.2
+prometheus_stack_grafana_admin_user: admin
+prometheus_stack_grafana_admin_password: admin
+prometheus_stack_grafana_config_path: /etc/grafana
+prometheus_stack_grafana_data: /opt/grafana
+prometheus_stack_grafana_dashboards_path: "grafana/*"
+
+# Alertmanager
+prometheus_stack_alertmanager_port: "9093"
+prometheus_stack_alertmanager_config_path: /etc/alertmanager
+prometheus_stack_alertmanager_version: "v0.19.0"
+prometheus_stack_alertmanager_additional_command_args: ""
+prometheus_stack_alertmanager_receivers:
+  - name: dummy
+prometheus_stack_alertmanager_route:
+  receiver: dummy
+
+# Prometheus-tg-bot
+prometheus_stack_prometheus_tg_bot_config_path: /etc/prometheus-tg-bot
+prometheus_stack_prometheus_tg_bot_token: ""
+prometheus_stack_prometheus_tg_bot_port: 9977
