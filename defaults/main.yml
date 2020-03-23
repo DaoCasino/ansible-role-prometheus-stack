@@ -19,9 +19,7 @@ prometheus_stack_prometheus_version: v2.13.0
 prometheus_stack_prometheus_config_path: /etc/prometheus
 prometheus_stack_prometheus_data: /opt/prometheus/data
 prometheus_stack_prometheus_static_targets:
-  - 'localhost:9090'
-prometheus_stack_prometheus_targets:
-  - jobname: monitoring
+  - jobname: prometheus
     host: localhost
     metrics_path: /metrics
     port: 9090
@@ -31,7 +29,11 @@ prometheus_stack_prometheus_addition_target:
       - "{{ prometheus_stack_node_exporter_port }}"
       - 8080
       - 8889
-prometheus_stack_prometheus_alertmanagers: []
+prometheus_stack_prometheus_alertmanagers:
+  - scheme: http
+    static_configs:
+      - targets:
+        - "alertmanager:{{ prometheus_stack_alertmanager_port }}"
 
 # Node exporter
 prometheus_stack_node_exporter_port: 9100

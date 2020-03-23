@@ -3,11 +3,7 @@ global:
   evaluation_interval: {{ evaluation_interval | default('5s') }}
 
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: {{ prometheus_stack_prometheus_static_targets | to_json }}
-
-{% for item in prometheus_stack_prometheus_targets %}
+{% for item in prometheus_stack_prometheus_static_targets %}
   - job_name: '{{ item.jobname }}'
     scrape_interval: {{ item.scrape_interval | default('5s') }}
     metrics_path: {{ item.metrics_path | default('/metrics') }}
