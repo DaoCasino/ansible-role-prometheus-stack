@@ -1,4 +1,4 @@
-# ansible managed
+{{ ansible_managed | comment }}
 
 - targets:
 {% for port in target_ports %}
@@ -6,4 +6,3 @@
 {% endfor %}
   labels:
     job: "{{ target_ip }}"
-  {{ target_labels | to_nice_yaml(indent=2) | indent(2,True) }}

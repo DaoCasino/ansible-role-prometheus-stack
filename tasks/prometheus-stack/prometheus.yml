@@ -62,6 +62,6 @@
   uri:
     url: http://localhost:{{ prometheus_stack_prometheus_port }}
     method: GET
-    status_code: [200, 405]
+    status_code: [200, 404, 405]
   retries: 15
   delay: 5
