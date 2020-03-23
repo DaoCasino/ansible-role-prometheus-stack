@@ -31,3 +31,12 @@ def test_config_file_exists(host, file, content):
 
     assert file.exists
     assert file.contains(content)
+
+
+@pytest.mark.parametrize("files", [
+    "/etc/prometheus/alerts/ansible_managed.rules",
+    "/etc/prometheus/prometheus.yml"
+])
+def test_absent(host, files):
+    f = host.file(files)
+    assert f.exists

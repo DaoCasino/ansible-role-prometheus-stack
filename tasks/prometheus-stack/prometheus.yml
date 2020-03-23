@@ -12,9 +12,10 @@
 
 - name: Set prometheus config
   template:
-    src: prometheus/prometheus.yml.j2
+    src: "prometheus/prometheus.yml.j2"
     dest: "{{ prometheus_stack_prometheus_config_path }}/prometheus.yml"
     force: true
+    mode: 0644
   register: prometheus_configuration
 
 - name: Add prometheus targets
@@ -30,8 +31,7 @@
 - name: Configure alert rules
   template:
     src: "prometheus/alert.rules.j2"
-    dest: "/etc/prometheus/alerts/main.rules"
-
+    dest: "/etc/prometheus/alerts/ansible_managed.rules"
 
 - name: Launch docker prometheus
   become: true
