@@ -9,6 +9,11 @@
     - "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources"
     - "{{ prometheus_stack_grafana_config_path }}/provisioning/dashboards"
 
+- name: Copy Grafana datasource config
+  template:
+    src: grafana/grafana-prometehus-datasource.yml.j2
+    dest: "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources/prometheus.yml"
+
 - name: Launch grafana prometheus
   become: true
   docker_container:

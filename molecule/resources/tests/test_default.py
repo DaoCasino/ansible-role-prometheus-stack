@@ -35,7 +35,8 @@ def test_config_file_exists(host, file, content):
 
 @pytest.mark.parametrize("files", [
     "/etc/prometheus/alerts/ansible_managed.rules",
-    "/etc/prometheus/prometheus.yml"
+    "/etc/prometheus/prometheus.yml",
+    "etc/grafana/provisioning/datasources/prometheus.yml"
 ])
 def test_absent(host, files):
     f = host.file(files)
