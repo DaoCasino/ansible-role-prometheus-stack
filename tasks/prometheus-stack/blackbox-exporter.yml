@@ -17,6 +17,7 @@
   become: true
   docker_container:
     command: >
+      --config.file=/etc/blackbox_exporter/config.yml
       {{ prometheus_stack_blackbox_exporter_additional_command_args }}
     image: prom/blackbox-exporter:{{ prometheus_stack_blackbox_exporter_version }}
     name: blackbox
