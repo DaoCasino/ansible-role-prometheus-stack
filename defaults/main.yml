@@ -71,6 +71,7 @@ prometheus_stack_grafana_admin_password: admin
 prometheus_stack_grafana_config_path: /etc/grafana
 prometheus_stack_grafana_data: /opt/grafana
 prometheus_stack_grafana_dashboards_path: "grafana/*"
+prometheus_stack_prometheus_datasource_url: "http://prometheus:9090/"
 
 # Alertmanager
 prometheus_stack_alertmanager_port: "9093"
