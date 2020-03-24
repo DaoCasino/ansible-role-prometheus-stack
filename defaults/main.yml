@@ -25,7 +25,7 @@ prometheus_stack_prometheus_static_targets:
     metrics_path: /metrics
     port: "{{ prometheus_stack_prometheus_port }}"
   - jobname: node-exporter
-    host: exporter
+    host: node-exporter
     metrics_path: /metrics
     port: "{{ prometheus_stack_node_exporter_port }}"
 
@@ -129,7 +129,7 @@ prometheus_stack_prometheus_alert_rules:
         "DeadMansSnitch" integration in PagerDuty.'
       summary: 'Ensure entire alerting pipeline is functional'
   - alert: InstanceDown
-    expr: "up == 0"
+    expr: up == 0
     for: 5m
     labels:
       severity: critical

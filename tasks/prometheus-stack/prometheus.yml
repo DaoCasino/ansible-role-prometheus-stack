@@ -17,6 +17,7 @@
     force: true
     mode: 0644
   register: prometheus_configuration
+  notify: restart prometheus
 
 - name: Add prometheus targets
   loop: "{{ prometheus_stack_prometheus_addition_target }}"

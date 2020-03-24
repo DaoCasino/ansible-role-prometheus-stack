@@ -13,3 +13,8 @@
   docker_container:
     name: "blackbox"
     restart: true
+
+- name: restart prometheus
+  docker_container:
+    name: "prometheus"
+    restart: true
