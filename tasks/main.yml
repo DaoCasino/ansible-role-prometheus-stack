@@ -13,6 +13,10 @@
   include_tasks: "prometheus-stack/exporter.yml"
   when: prometheus_stack_install_exporter|bool
 
+- name: Install blackbox-exporter
+  include_tasks: "prometheus-stack/blackbox-exporter.yml"
+  when: prometheus_stack_install_blackbox_exporter|bool
+
 - name: Install push-gateway
   include_tasks: "prometheus-stack/gateway.yml"
   when: prometheus_stack_install_gateway|bool

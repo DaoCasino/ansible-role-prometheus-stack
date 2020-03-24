@@ -8,6 +8,7 @@ prometheus_stack_install_alertmanager: true
 prometheus_stack_install_prometheus-tg-bot: true
 prometheus_stack_install_graylog: true
 prometheus_stack_install_prometheus_tg_bot: false
+prometheus_stack_install_blackbox_exporter: true
 
 prometheus_stack_docker_network: prometheus-stack
 
@@ -33,7 +34,7 @@ prometheus_stack_prometheus_alertmanagers:
   - scheme: http
     static_configs:
       - targets:
-        - "alertmanager:{{ prometheus_stack_alertmanager_port }}"
+          - "alertmanager:{{ prometheus_stack_alertmanager_port }}"
 
 # Node exporter
 prometheus_stack_node_exporter_port: 9100
@@ -66,12 +67,35 @@ prometheus_stack_grafana_dashboards_path: "grafana/*"
 # Alertmanager
 prometheus_stack_alertmanager_port: "9093"
 prometheus_stack_alertmanager_config_path: /etc/alertmanager
-prometheus_stack_alertmanager_version: "v0.19.0"
+prometheus_stack_alertmanager_version: "v0.20.0"
 prometheus_stack_alertmanager_additional_command_args: ""
 prometheus_stack_alertmanager_receivers:
   - name: dummy
 prometheus_stack_alertmanager_route:
   receiver: dummy
+
+# Blackbox Exporter
+prometheus_stack_blackbox_exporter_port: "9115"
+prometheus_stack_blackbox_exporter_config_path: /etc/blackbox_exporter
+prometheus_stack_blackbox_exporter_version: "v0.16.0"
+prometheus_stack_blackbox_exporter_additional_command_args: ""
+prometheus_stack_prometheus_blackbox_export_job:
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+          - http://prometheus.io    # Target to probe with http.
+          - https://prometheus.io   # Target to probe with https.
+          - http://example.com:8080 # Target to probe with http on port 8080.
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:{{ prometheus_stack_blackbox_exporter_port }}  # The blackbox exporter's real hostname:port.
 
 # Prometheus-tg-bot
 prometheus_stack_prometheus_tg_bot_config_path: /etc/prometheus-tg-bot
@@ -146,3 +170,18 @@ prometheus_stack_prometheus_alert_rules:
     annotations:
       description: "{% raw %}Clock skew detected on {{ $labels.instance }}. Ensure NTP is configured correctly on this host.{% endraw %}"
       summary: "{% raw %}Instance {{ $labels.instance }} - Clock skew detected{% endraw %}"
+  - alert: SSLCertExpiring30days
+    expr: 'probe_ssl_earliest_cert_expiry{job="blackbox"} - time() < 86400 * 30'
+    for: 10m
+    labels:
+      severity: info
+    annotations:
+      summary: "SSL certificate warning"
+      description: "{% raw %}SSL certificate for the {{ $labels.instance }} will expire within 30 days!{% endraw %}"
+  - alert: EndpointDown
+    expr: 'probe_success == 0'
+    for: 10s
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "{% raw %}Endpoint {{ $labels.instance }} down{% endraw %}"

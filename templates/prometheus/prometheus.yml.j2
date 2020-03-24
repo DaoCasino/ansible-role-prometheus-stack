@@ -11,6 +11,10 @@ scrape_configs:
     - targets: ['{{ item.host }}:{{ item.port}}']
 {% endfor %}
 
+{% if prometheus_stack_prometheus_blackbox_export_job | length > 0 %}
+  {{ prometheus_stack_prometheus_blackbox_export_job | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}
+
   - job_name: additional targets
     file_sd_configs:
     - files:

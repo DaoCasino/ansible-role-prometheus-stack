@@ -1,0 +1,39 @@
+---
+- name: Create blackbox_exporter config dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ prometheus_stack_blackbox_exporter_config_path }}"
+
+- name: Set blackbox_exporter config
+  template:
+    src: blackbox/blackbox.yml.j2
+    dest: "{{ prometheus_stack_blackbox_exporter_config_path }}/config.yml"
+    force: true
+  notify: restart blackbox
+
+- name: Launch docker blackbox_exporter
+  become: true
+  docker_container:
+    command: >
+      {{ prometheus_stack_blackbox_exporter_additional_command_args }}
+    image: prom/blackbox-exporter:{{ prometheus_stack_blackbox_exporter_version }}
+    name: blackbox
+    detach: true
+    networks:
+      - name: "{{ prometheus_stack_docker_network }}"
+    published_ports:
+      - "127.0.0.1:{{ prometheus_stack_blackbox_exporter_port }}:9115"
+    restart_policy: always
+    state: started
+    volumes:
+      - "{{ prometheus_stack_blackbox_exporter_config_path }}/config.yml:/etc/blackbox_exporter/config.yml:ro"
+
+- name: Check blackbox_exporter API works
+  uri:
+    url: http://localhost:{{ prometheus_stack_blackbox_exporter_port }}
+    method: GET
+    status_code: [200, 404, 405]
+  retries: 15
+  delay: 5

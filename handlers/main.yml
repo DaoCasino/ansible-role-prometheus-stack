@@ -8,3 +8,8 @@
   docker_container:
     name: "prometheus-bot"
     restart: true
+
+- name: restart blackbox
+  docker_container:
+    name: "blackbox"
+    restart: true
