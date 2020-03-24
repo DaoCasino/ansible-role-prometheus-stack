@@ -28,6 +28,9 @@ prometheus_stack_prometheus_static_targets:
     host: node-exporter
     metrics_path: /metrics
     port: "{{ prometheus_stack_node_exporter_port }}"
+  - jobname: cadvisor
+    host: cadvisor
+    port: "{{ prometheus_stack_cadvisor_port }}"
 
 prometheus_stack_prometheus_addition_target:
   - ip: 127.0.0.1
@@ -62,7 +65,7 @@ prometheus_stack_cavdisor_args: ""
 
 # Grafana
 prometheus_stack_grafana_port: 3000
-prometheus_stack_grafana_version: 6.6.2
+prometheus_stack_grafana_version: 6.7.1
 prometheus_stack_grafana_admin_user: admin
 prometheus_stack_grafana_admin_password: admin
 prometheus_stack_grafana_config_path: /etc/grafana

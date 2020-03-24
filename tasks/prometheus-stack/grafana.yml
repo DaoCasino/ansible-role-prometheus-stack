@@ -6,13 +6,26 @@
     mode: '0777'
   with_items:
     - "{{ prometheus_stack_grafana_data }}"
+    - "{{ prometheus_stack_grafana_data }}/dashboards"
     - "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources"
     - "{{ prometheus_stack_grafana_config_path }}/provisioning/dashboards"
+    - "{{ prometheus_stack_grafana_config_path }}/provisioning/notifiers"
 
 - name: Copy Grafana datasource config
   template:
     src: grafana/grafana-prometehus-datasource.yml.j2
     dest: "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources/prometheus.yml"
+
+- name: Copy Grafana datasource config
+  template:
+    src: grafana/auto_provider.yml.j2
+    dest: "{{ prometheus_stack_grafana_config_path }}/provisioning/datasources/auto_provider.yml"
+
+- name: Copy dashboards
+  copy:
+    src: "{{ item }}"
+    dest: "{{ prometheus_stack_grafana_config_path }}/dashboards/"
+  with_fileglob: "{{ prometheus_stack_grafana_dashboards_path }}"
 
 - name: Launch grafana prometheus
   become: true
@@ -38,7 +51,6 @@
       - "{{ prometheus_stack_grafana_config_path }}/datasources:/etc/grafana/datasources"
       - "{{ prometheus_stack_grafana_config_path }}/dashboards:/etc/grafana/dashboards"
 
-
 - name: Check grafana works
   uri:
     url: http://localhost:{{ prometheus_stack_grafana_port }}
@@ -46,25 +58,3 @@
     status_code: [200, 405]
   retries: 60
   delay: 1
-
-- name: Copy dashboards
-  copy:
-    src: "{{ item }}"
-    dest: "{{ prometheus_stack_grafana_config_path }}/provisioning/dashboards/"
-  with_fileglob: "{{ prometheus_stack_grafana_dashboards_path }}"
-
-- name: Get dashboard files on remote machine
-  find:
-    paths: "/tmp/grafana/dashboards"
-  register: dashboard_files
-
-- name: Import Grafana dashboards
-  grafana_dashboard:
-    grafana_url: "http://localhost:{{ prometheus_stack_grafana_port }}"
-    grafana_user: "{{ prometheus_stack_grafana_admin_user }}"
-    grafana_password: "{{ prometheus_stack_grafana_admin_password }}"
-    state: present
-    commit_message: "Imported by ansible - {{ item.path | basename }}"
-    overwrite: yes
-    path: "{{ item.path }}"
-  with_items: "{{ dashboard_files.files }}"
