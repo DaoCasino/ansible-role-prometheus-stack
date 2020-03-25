@@ -23,11 +23,11 @@
   loop: "{{ prometheus_stack_prometheus_addition_target }}"
   template:
     src: "prometheus/target.yml.j2"
-    dest: "{{ prometheus_stack_prometheus_config_path }}/targets/{{ item.ip }}.yml"
+    dest: "{{ prometheus_stack_prometheus_config_path }}/targets/{{ item.name }}.yml"
   vars:
-    - target_ports: "{{ item.ports }}"
-    - target_ip: "{{ item.ip }}"
-    - target_labels: "{{ item.labels | default([]) }}"
+    - target_name: "{{ item.name }}"
+    - target_targets: "{{ item.targets }}"
+    - target_labels: "{{ item.labels | default({}) }}"
 
 - name: Configure alert rules
   template:

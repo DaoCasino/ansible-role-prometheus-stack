@@ -19,6 +19,19 @@ scrape_configs:
     file_sd_configs:
     - files:
       - "{{ prometheus_stack_prometheus_config_path }}/targets/*.yml"
+    relabel_configs:
+      - source_labels: [__address__]
+        regex:  '(https?)://.*'        # capture scheme part
+        target_label: __scheme__       # change scheme
+      - source_labels: [__address__]
+        regex:  'https?://(.*)'         # drop scheme part
+        target_label: __address__       # change scheme
+      - source_labels: [__address__]
+        regex:  '[^/]+(/.*)'            # capture '/...' part
+        target_label: __metrics_path__  # change metrics path
+      - source_labels: [__address__]
+        regex:  '([^/]+)/.*'            # capture host:port
+        target_label: __address__       # change target
 
 rule_files:
   - {{ prometheus_stack_prometheus_config_path }}/alerts/*.rules

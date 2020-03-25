@@ -33,11 +33,12 @@ prometheus_stack_prometheus_static_targets:
     port: "{{ prometheus_stack_cadvisor_port }}"
 
 prometheus_stack_prometheus_addition_target:
-  - ip: 127.0.0.1
-    ports:
-      - "{{ prometheus_stack_node_exporter_port }}"
-      - 8080
-      - 8889
+  - name: example
+    targets:
+      - https://example.com:443/api/metrics
+      - http://example.com:8080/metrics
+    labels:
+      env: test
 prometheus_stack_prometheus_alertmanagers:
   - scheme: http
     static_configs:
