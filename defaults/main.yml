@@ -180,14 +180,14 @@ prometheus_stack_prometheus_alert_rules:
     annotations:
       description: "{% raw %}Clock skew detected on {{ $labels.instance }}. Ensure NTP is configured correctly on this host.{% endraw %}"
       summary: "{% raw %}Instance {{ $labels.instance }} - Clock skew detected{% endraw %}"
-  - alert: SSLCertExpiring30days
-    expr: 'probe_ssl_earliest_cert_expiry{job="blackbox"} - time() < 86400 * 30'
-    for: 10m
+  - alert: SSLCertExpiring
+    expr: 'probe_ssl_earliest_cert_expiry{job="blackbox"} - time() < 86400 * 20'
+    for: 60m
     labels:
       severity: info
     annotations:
       summary: "SSL certificate warning"
-      description: "{% raw %}SSL certificate for the {{ $labels.instance }} will expire within 30 days!{% endraw %}"
+      description: "{% raw %}SSL certificate for the {{ $labels.instance }} will expire within 20 days!{% endraw %}"
   - alert: EndpointDown
     expr: 'probe_success == 0'
     for: 10s
