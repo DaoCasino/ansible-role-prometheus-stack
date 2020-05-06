@@ -36,7 +36,7 @@
 
 - name: Configure alert rules-2
   copy:
-    src: "prometheus/alert.rules"
+    src: "prometheus/alert.yaml"
     dest: "/etc/prometheus/alerts/big-collection.rules"
 
 - name: Launch docker prometheus
