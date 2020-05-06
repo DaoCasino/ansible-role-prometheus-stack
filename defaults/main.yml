@@ -158,7 +158,7 @@ prometheus_stack_prometheus_alert_rules:
       description: "{% raw %}{{ $labels.instance }} has Critical Memory Usage more than 5 minutes.{% endraw %}"
       summary: "{% raw %}Instance {{ $labels.instance }} has Critical Memory Usage{% endraw %}"
   - alert: CriticalDiskSpace
-    expr: 'node_filesystem_free_bytes{mountpoint!~"^/run(/.*|$)",fstype!~"(squashfs|fuse.*)",job="node"} / node_filesystem_size_bytes{job="node"} < 0.1'
+    expr: 'node_filesystem_free_bytes{mountpoint!~"^/run(/.*|$)",fstype!~"(squashfs|fuse.*)"} / node_filesystem_size_bytes < 0.1'
     for: 4m
     labels:
       severity: critical
@@ -190,7 +190,7 @@ prometheus_stack_prometheus_alert_rules:
       description: "{% raw %}SSL certificate for the {{ $labels.instance }} will expire within 20 days!{% endraw %}"
   - alert: EndpointDown
     expr: 'probe_success == 0'
-    for: 10s
+    for: 15s
     labels:
       severity: "critical"
     annotations:

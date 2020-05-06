@@ -34,6 +34,11 @@
     src: "prometheus/alert.rules.j2"
     dest: "/etc/prometheus/alerts/ansible_managed.rules"
 
+- name: Configure alert rules-2
+  copy:
+    src: "prometheus/alert.rules"
+    dest: "/etc/prometheus/alerts/big-collection.rules"
+
 - name: Launch docker prometheus
   become: true
   docker_container:
